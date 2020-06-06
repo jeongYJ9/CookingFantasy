@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using DG.Tweening;
 public class buildingController : MonoBehaviour
 {
 
     const float minMoveDist = 3;
     const float xFlipSnap = 30;
+
+    public float YmoveSpeed;
 
     Vector3 inputStartPos;
     int isXrot;
@@ -18,7 +20,7 @@ public class buildingController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        YmoveSpeed = 8.0f;
     }
 
     void StartDrag(){
@@ -79,15 +81,17 @@ public class buildingController : MonoBehaviour
                 transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY + moveX / 4, 0));
                 if( Mathf.Abs(moveX / 4) > xFlipSnap) {
                     //todo 여기서 tween 으로 90도의 배수가 되도록 회전시켜야함
-                    if( moveX > 0 )
-                        transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY + 90, 0));
+                    if (moveX > 0)
+                        transform.DORotate(new Vector3(0, dragStartRotY+90,0),0.5f);
+                        //transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY + 90, 0));
                     else
-                        transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY - 90, 0));
+                        transform.DORotate(new Vector3(0, dragStartRotY - 90, 0), 0.5f);
+                        //transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY - 90, 0));
                     EndDrag();
                 }
             }
             else {
-                float movePosY = dragStartPos.y - moveY / 8;
+                float movePosY = dragStartPos.y - moveY / YmoveSpeed;
                 if ( movePosY > 0 )
                     movePosY = 0;
                 transform.position = new Vector3( dragStartPos.x , movePosY, dragStartPos.z);
