@@ -4,7 +4,8 @@ using UnityEngine;
 using DG.Tweening;
 public class buildingController : MonoBehaviour
 {
-
+    GameObject Manager;
+    private int RoomType;
     const float minMoveDist = 3;
     const float xFlipSnap = 30;
 
@@ -20,7 +21,8 @@ public class buildingController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        YmoveSpeed = 8.0f;
+        Manager = GameObject.Find("Manager");
+        RoomType = 2;
     }
 
     void StartDrag(){
@@ -81,13 +83,24 @@ public class buildingController : MonoBehaviour
                 transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY + moveX / 4, 0));
                 if( Mathf.Abs(moveX / 4) > xFlipSnap) {
                     //todo 여기서 tween 으로 90도의 배수가 되도록 회전시켜야함
+
                     if (moveX > 0)
-                        transform.DORotate(new Vector3(0, dragStartRotY+90,0),0.5f);
+                    {
+                        transform.DORotate(new Vector3(0, dragStartRotY + 90, 0), 0.5f);
+                        RoomType++;
+                    }
+                        
                         //transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY + 90, 0));
                     else
+                    {
                         transform.DORotate(new Vector3(0, dragStartRotY - 90, 0), 0.5f);
+                        RoomType--;
+                    }
+                    
                         //transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY - 90, 0));
                     EndDrag();
+
+                    MenuChanger();
                 }
             }
             else {
@@ -97,6 +110,15 @@ public class buildingController : MonoBehaviour
                 transform.position = new Vector3( dragStartPos.x , movePosY, dragStartPos.z);
             }
         }
+    }
+
+    void MenuChanger()
+    {
+        if (RoomType < 1)
+            RoomType = 1;
+        else if (RoomType > 4)
+            RoomType = 4;
+        Manager.GetComponent<baseSceneManager>().MenuChanger(RoomType);
     }
 
     // Update is called once per frame
