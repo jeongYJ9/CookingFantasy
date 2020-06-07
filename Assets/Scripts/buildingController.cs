@@ -5,10 +5,16 @@ using DG.Tweening;
 public class buildingController : MonoBehaviour
 {
     GameObject Manager;
+    
     private int RoomType;
+    private int tempRoomType;
+
     const float minMoveDist = 3;
     const float xFlipSnap = 30;
 
+    private bool TouchLock = false;
+    private float TouchLockTime;
+    public float XmoveSpeed;
     public float YmoveSpeed;
 
     Vector3 inputStartPos;
@@ -22,7 +28,8 @@ public class buildingController : MonoBehaviour
     void Start()
     {
         Manager = GameObject.Find("Manager");
-        RoomType = 2;
+        RoomType = Manager.GetComponent<baseSceneManager>().GetRoomType();
+        tempRoomType = RoomType;
     }
 
     void StartDrag(){
@@ -34,13 +41,34 @@ public class buildingController : MonoBehaviour
     }
 
     void EndDrag(){
-       // inputStartPos = new Vector3(0);
-       startTouch = false;
+        // inputStartPos = new Vector3(0);
+        startTouch = false;
         float moveDist = Vector3.Distance( inputStartPos , Input.mousePosition);
         isXrot = 0;
         if( moveDist < minMoveDist) {
             Debug.Log("TOUCH EVENT");
+           
         }
+
+        if (RoomType == tempRoomType)
+        {
+            dragStartRotY = transform.eulerAngles.y;
+            if (45 <= dragStartRotY && dragStartRotY < 135)
+                dragStartRotY = 90;
+            else if (135 <= dragStartRotY && dragStartRotY < 225)
+                dragStartRotY = 180;
+            else if (225 <= dragStartRotY && dragStartRotY < 315)
+                dragStartRotY = 270;
+            else if (315 <= dragStartRotY && dragStartRotY < 405)
+                dragStartRotY = 0;
+            else if (-45 <= dragStartRotY && dragStartRotY < 45)
+                dragStartRotY = 0;
+            transform.DORotate(new Vector3(0, dragStartRotY, 0), XmoveSpeed);
+        }
+        tempRoomType = RoomType;
+
+        TouchLock = true;
+
     }
 
     void CheckMouseEvent(){
@@ -64,15 +92,16 @@ public class buildingController : MonoBehaviour
             float moveX = inputStartPos.x - Input.mousePosition.x;
             float moveY = inputStartPos.y - Input.mousePosition.y;
             if( moveDist < minMoveDist) {
-               // Debug.Log("TOUCH EVENT");
+                // Debug.Log("TOUCH EVENT");
+                
                 return;
             }
 
             if( isXrot == 0 ) {
                 if( Mathf.Abs(moveX) > Mathf.Abs(moveY))
                     isXrot = 1;
-                else
-                    isXrot = 2;
+                else 
+                isXrot = 2;
             }
 
 
@@ -82,25 +111,27 @@ public class buildingController : MonoBehaviour
                 Debug.Log( moveDist );
                 transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY + moveX / 4, 0));
                 if( Mathf.Abs(moveX / 4) > xFlipSnap) {
-                    //todo 여기서 tween 으로 90도의 배수가 되도록 회전시켜야함
-
-                    if (moveX > 0)
+                   
+                    if (moveX > 0&& RoomType <4)
                     {
-                        transform.DORotate(new Vector3(0, dragStartRotY + 90, 0), 0.5f);
+                        transform.DORotate(new Vector3(0, dragStartRotY + 90, 0), XmoveSpeed);
                         RoomType++;
+                        MenuChanger();
                     }
                         
-                        //transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY + 90, 0));
+                    else if(moveX < 0 && RoomType >1)
+                    {
+                        transform.DORotate(new Vector3(0, dragStartRotY - 90, 0), XmoveSpeed);
+                        RoomType--;
+                        MenuChanger();
+                    }
                     else
                     {
-                        transform.DORotate(new Vector3(0, dragStartRotY - 90, 0), 0.5f);
-                        RoomType--;
+                        transform.DORotate(new Vector3(0, dragStartRotY, 0), XmoveSpeed);
                     }
-                    
-                        //transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY - 90, 0));
                     EndDrag();
 
-                    MenuChanger();
+                    
                 }
             }
             else {
@@ -123,8 +154,23 @@ public class buildingController : MonoBehaviour
 
     // Update is called once per frame
     void Update(){
-        CheckMouseEvent();
+        if(TouchLock == false)
+        {
+            CheckMouseEvent();
+        }
+        else if (TouchLock ==true)
+        {
+            TouchLockTime += Time.deltaTime;
 
+        }
+       
+        if(TouchLockTime > XmoveSpeed)
+        {
+            TouchLockTime = 0;
+            TouchLock = false;
+        }
+
+        
        
 
     }

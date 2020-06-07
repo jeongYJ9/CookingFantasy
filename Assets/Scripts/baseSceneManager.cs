@@ -90,6 +90,10 @@ public class baseSceneManager : MonoBehaviour
         }
     }
   
+    public int GetRoomType()
+    {
+        return RoomType;
+    }
 
     public void MenuChanger(int _RoomType)
     {
