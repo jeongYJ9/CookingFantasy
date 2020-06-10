@@ -112,14 +112,14 @@ public class buildingController : MonoBehaviour
                 transform.rotation = Quaternion.Euler (new Vector3 (0, dragStartRotY + moveX / 4, 0));
                 if( Mathf.Abs(moveX / 4) > xFlipSnap) {
                    
-                    if (moveX > 0&& RoomType <4)
+                    if (moveX > 0)
                     {
                         transform.DORotate(new Vector3(0, dragStartRotY + 90, 0), XmoveSpeed);
                         RoomType++;
                         MenuChanger();
                     }
                         
-                    else if(moveX < 0 && RoomType >1)
+                    else if(moveX < 0)
                     {
                         transform.DORotate(new Vector3(0, dragStartRotY - 90, 0), XmoveSpeed);
                         RoomType--;
@@ -145,10 +145,10 @@ public class buildingController : MonoBehaviour
 
     void MenuChanger()
     {
-        if (RoomType < 1)
-            RoomType = 1;
-        else if (RoomType > 4)
+        if (RoomType ==0)
             RoomType = 4;
+        else if (RoomType ==5)
+            RoomType = 1;
         Manager.GetComponent<baseSceneManager>().MenuChanger(RoomType);
     }
 
